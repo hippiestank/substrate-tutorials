@@ -1,24 +1,23 @@
 use crate as pallet_reminder;
 use frame_support::{
-	parameter_types,
+    // parameter_types,
+	derive_impl,
 	traits::{ConstU16, ConstU64},
-	weights::RuntimeDbWeight,
+    weights::RuntimeDbWeight,
 };
 use sp_core::H256;
 use sp_runtime::{
-	testing::Header,
-	traits::{BlakeTwo256, IdentityLookup},
+    // testing::Header,
+	traits::{BlakeTwo256, IdentityLookup,},
+	BuildStorage,
 };
 
 type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
-type Block = frame_system::mocking::MockBlock<TestRuntime>;
+type Block = frame_system::mocking::MockBlock<Test>;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
-	pub enum TestRuntime where
-		Block = Block,
-		NodeBlock = Block,
-		UncheckedExtrinsic = UncheckedExtrinsic,
+	pub enum Test
 	{
 		System: frame_system,
 		Reminder: pallet_reminder,
@@ -26,45 +25,43 @@ frame_support::construct_runtime!(
 );
 
 parameter_types! {
-	pub const DbWeight: RuntimeDbWeight = RuntimeDbWeight {read: 1, write: 10000};
-}
+    pub const DbWeight: RuntimeDbWeight = RuntimeDbWeight {read: 1, write: 10000};
 
-impl frame_system::Config for TestRuntime {
-	type AccountData = ();
-	type AccountId = u64;
+#[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
+impl frame_system::Config for Test {
 	type BaseCallFilter = frame_support::traits::Everything;
-	type BlockHashCount = ConstU64<250>;
-	type BlockLength = ();
-	type BlockNumber = u64;
 	type BlockWeights = ();
-	type Call = Call;
-	type DbWeight = DbWeight;
-	type Event = Event;
+	type BlockLength = ();
+    type BlockNumber = u64;
+	type DbWeight = ();
+	type RuntimeOrigin = RuntimeOrigin;
+	type RuntimeCall = RuntimeCall;
+	type Nonce = u64;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
-	type Header = Header;
-	type Index = u64;
+	type AccountId = u64;
 	type Lookup = IdentityLookup<Self::AccountId>;
-	type MaxConsumers = frame_support::traits::ConstU32<16>;
-	type OnKilledAccount = ();
-	type OnNewAccount = ();
-	type OnSetCode = ();
-	type Origin = Origin;
-	type PalletInfo = PalletInfo;
-	type SS58Prefix = ConstU16<42>;
-	type SystemWeightInfo = ();
+	type Block = Block;
+	type RuntimeEvent = RuntimeEvent;
+	type BlockHashCount = ConstU64<250>;
 	type Version = ();
+	type PalletInfo = PalletInfo;
+	type AccountData = ();
+	type OnNewAccount = ();
+	type OnKilledAccount = ();
+	type SystemWeightInfo = ();
+	type SS58Prefix = ConstU16<42>;
+	type OnSetCode = ();
+	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_reminder::Config for TestRuntime {
-	type Event = Event;
+impl pallet_reminder::Config for Test {
+	type RuntimeEvent = RuntimeEvent;
 }
 
+// Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	let t = frame_system::GenesisConfig::default().build_storage::<TestRuntime>().unwrap();
-	let mut ext = sp_io::TestExternalities::new(t);
-	ext.execute_with(|| System::set_block_number(1));
-	ext
+	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
 }
 
 // Mock users AccountId
