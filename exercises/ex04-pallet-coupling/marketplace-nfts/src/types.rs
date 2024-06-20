@@ -1,9 +1,8 @@
 use crate::Config;
 use codec::{Decode, Encode};
 use frame_support::{
-	pallet_prelude::{BoundedVec, MaxEncodedLen},
+	pallet_prelude::{BoundedVec, MaxEncodedLen,RuntimeDebug},
 	traits::Get,
-	RuntimeDebug,
 };
 use scale_info::TypeInfo;
 

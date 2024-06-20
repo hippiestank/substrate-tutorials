@@ -1,6 +1,6 @@
 use crate::{BalanceOf, Config};
 use codec::{Decode, Encode, MaxEncodedLen};
-use frame_support::RuntimeDebug;
+use frame_support::pallet_prelude::RuntimeDebug;
 use scale_info::TypeInfo;
 
 #[derive(Encode, Decode, Eq, PartialEq, RuntimeDebug, TypeInfo, MaxEncodedLen)]
