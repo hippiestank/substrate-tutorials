@@ -6,7 +6,7 @@ mod offchain_worker;
 
 pub use pallet::*;
 
-use frame_support::log;
+// use frame_support::log;
 use sp_std::vec::Vec;
 
 extern crate alloc;
@@ -26,12 +26,11 @@ pub mod pallet {
 	pub trait Config:
 		frame_system::Config + frame_system::offchain::SendTransactionTypes<Call<Self>>
 	{
-		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 		type Call: From<Call<Self>>;
 	}
 
 	#[pallet::pallet]
-	#[pallet::generate_store(pub(super) trait Store)]
 	pub struct Pallet<T>(_);
 
 	#[pallet::storage]
