@@ -16,7 +16,7 @@ frame_support::construct_runtime!(
 	pub enum Test
 	{
 		System: frame_system,
-		TemplateModule: pallet_flipper,
+		Flipper: pallet_flipper,
 	}
 );
 
@@ -55,3 +55,5 @@ impl pallet_flipper::Config for Test {
 pub fn new_test_ext() -> sp_io::TestExternalities {
 	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
 }
+
+pub const ALICE: u64 = 0;
