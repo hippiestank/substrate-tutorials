@@ -114,7 +114,8 @@ pub mod pallet {
 	// Dispatchable functions must be annotated with a weight and must return a DispatchResult.
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(0)]
+        #[pallet::call_index(0)]
+		#[pallet::weight(Weight::default())]
 		pub fn create(origin: OriginFor<T>) -> DispatchResult {
 			let origin = ensure_signed(origin)?;
 
@@ -132,7 +133,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(1)]
+		#[pallet::weight(Weight::default())]
 		pub fn set_metadata(
 			origin: OriginFor<T>,
 			asset_id: AssetId,
@@ -150,7 +152,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(2)]
+		#[pallet::weight(Weight::default())]
 		pub fn mint(
 			origin: OriginFor<T>,
 			asset_id: AssetId,
@@ -181,8 +184,8 @@ pub mod pallet {
 
 			Ok(())
 		}
-
-		#[pallet::weight(0)]
+        #[pallet::call_index(3)]
+		#[pallet::weight(Weight::default())]
 		pub fn burn(origin: OriginFor<T>, asset_id: AssetId, amount: u128) -> DispatchResult {
 			// TODO:
 			// - Ensure the extrinsic origin is a signed transaction.
@@ -193,7 +196,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(4)]
+		#[pallet::weight(Weight::default())]
 		pub fn transfer(
 			origin: OriginFor<T>,
 			asset_id: AssetId,
