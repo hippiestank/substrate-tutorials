@@ -77,6 +77,7 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
+        #[pallet::call_index(0)]
 		#[pallet::weight(Weight::from_parts(10_000, u64::MAX) + T::DbWeight::get().reads(1))]
 		pub fn schedule_reminder(
 			origin: OriginFor<T>,
