@@ -6,6 +6,8 @@ use frame_support::{
 	weights::RuntimeDbWeight,
 };
 
+use sp_core::Get;
+
 mod mint {
 	use super::*;
 
@@ -13,7 +15,7 @@ mod mint {
 	fn schedule() {
 		new_test_ext().execute_with(|| {
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				1,
 				"test".as_bytes().to_vec(),
 			));
@@ -30,12 +32,12 @@ mod mint {
 	fn execution_and_cleanup() {
 		new_test_ext().execute_with(|| {
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test".as_bytes().to_vec(),
 			));
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test2".as_bytes().to_vec(),
 			));
@@ -52,19 +54,19 @@ mod mint {
 	fn counting_events() {
 		new_test_ext().execute_with(|| {
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test".as_bytes().to_vec(),
 			));
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test2".as_bytes().to_vec(),
 			));
 			<Reminder as OnInitialize<u64>>::on_initialize(2);
 			assert_eq!(Reminder::event_counter(), 2);
 			<Reminder as OnFinalize<u64>>::on_finalize(2);
-			System::assert_last_event(Event::Reminder(crate::Event::RemindersExecuteds(2)));
+			System::assert_last_event(RuntimeEvent::Reminder(crate::Event::RemindersExecuteds(2)));
 		})
 	}
 
@@ -72,12 +74,12 @@ mod mint {
 	fn reset_counter() {
 		new_test_ext().execute_with(|| {
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test".as_bytes().to_vec(),
 			));
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test2".as_bytes().to_vec(),
 			));
@@ -96,12 +98,12 @@ mod mint {
 				<TestRuntime as frame_system::Config>::DbWeight::get();
 
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test".as_bytes().to_vec(),
 			));
 			assert_ok!(Reminder::schedule_reminder(
-				Origin::signed(ALICE),
+				RuntimeOrigin::signed(ALICE),
 				2,
 				"test2".as_bytes().to_vec(),
 			));
