@@ -1,7 +1,7 @@
 use crate as pallet_imbalance;
 use frame_support::{
 	derive_impl,
-    // parameter_types;
+    parameter_types,
 	traits::{ConstU16, ConstU64},
 };
 use sp_core::H256;
@@ -11,12 +11,12 @@ use sp_runtime::{
 	BuildStorage,
 };
 
-// type UncheckedExrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
-type Block = frame_system::mocking::MockBlock<Test>;
+type UncheckedExrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
+type Block = frame_system::mocking::MockBlock<TestRuntime>;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
-	pub enum Test
+	pub enum TestRuntime
 	{
 		System: frame_system,
 		Balances: pallet_balances,
@@ -30,7 +30,7 @@ parameter_types! {
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
-impl frame_system::Config for Test {
+impl frame_system::Config for TestRuntime {
 	type BaseCallFilter = frame_support::traits::Everything;
 	type BlockWeights = ();
 	type BlockLength = ();
@@ -47,7 +47,7 @@ impl frame_system::Config for Test {
 	type BlockHashCount = ConstU64<250>;
 	type Version = ();
 	type PalletInfo = PalletInfo;
-	type AccountData = ();
+	type AccountData = pallet_balances::AccountData<u128>;
 	type OnNewAccount = ();
 	type OnKilledAccount = ();
 	type SystemWeightInfo = ();
@@ -62,9 +62,10 @@ parameter_types! {
     pub const ExistentialDeposit: u128 = EXISTENTIAL_DEPOSIT;
     pub const MaxLocks: u32 = 50;
     pub const MaxReserves: u32 = 50;
+    pub const MaxFreezes: u32 = 100;
 }
 
-impl pallet_balances::Config for Test {
+impl pallet_balances::Config for TestRuntime {
     type AccountStore = System;
     type Balance = u128;
     type DustRemoval = ();
@@ -73,6 +74,11 @@ impl pallet_balances::Config for Test {
     type MaxReserves = MaxReserves;
     type ReserveIdentifier = [u8; 8];
     type WeightInfo = ();
+    type RuntimeHoldReason = ();
+    type RuntimeFreezeReason = ();
+    type ExistentialDeposit = ExistentialDeposit;
+    type FreezeIdentifier = ();
+    type MaxFreezes = MaxFreezes;
 }
 
 pub const TREASURY_FLAT_CUT: u128 = 50;
@@ -80,8 +86,9 @@ pub const TREASURY_FLAT_CUT: u128 = 50;
 parameter_types! {
     pub const TreasuryAccount: u64 = TREASURY;
     pub const TreasuryFlatCut: u128 = TREASURY_FLAT_CUT;
+}
 
-impl pallet_imbalance::Config for Test {
+impl pallet_imbalance::Config for TestRuntime {
     type Currency = Balances;
 	type RuntimeEvent = RuntimeEvent;
     type TreasuryAccount = TreasuryAccount;
@@ -92,9 +99,32 @@ impl pallet_imbalance::Config for Test {
 pub const TREASURY: u64 = 42;
 pub const ALICE: u64 = 1;
 pub const BOB: u64 = 2;
-pub const CHARLY: u64 =3;
+pub const CHARLY: u64 = 3;
 
-// Build genesis storage according to the mock runtime.
-pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+#[derive(Default)]
+pub struct ExtBuilder {
+	caps_endowed_accounts: Vec<(u64, u128)>,
+}
+
+impl ExtBuilder {
+	pub fn balances(mut self, accounts: Vec<(u64, u128)>) -> Self {
+		for account in accounts {
+			self.caps_endowed_accounts.push(account);
+		}
+		self
+	}
+
+	pub fn build(self) -> sp_io::TestExternalities {
+		let mut t = frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap();
+
+		pallet_balances::GenesisConfig::<TestRuntime> {
+			balances: self.caps_endowed_accounts,
+		}
+		.assimilate_storage(&mut t)
+		.unwrap();
+
+		let mut ext = sp_io::TestExternalities::new(t);
+		ext.execute_with(|| System::set_block_number(1));
+		ext
+	}
 }
