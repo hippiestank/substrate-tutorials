@@ -1,6 +1,7 @@
 use crate as pallet_nft;
 use frame_support::{
 	derive_impl,
+    parameter_types,
     // traits::GenesisBuild,
 	traits::{ConstU16, ConstU64},
 };
@@ -11,12 +12,12 @@ use sp_runtime::{
 	BuildStorage,
 };
 
-// type Unchecked Extrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
-type Block = frame_system::mocking::MockBlock<Test>;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
+type Block = frame_system::mocking::MockBlock<TestRuntime>;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
-	pub enum Test
+	pub enum TestRuntime
 	{
 		System: frame_system,// ::{Pallet, Call, Config, Storage, Event<T>},
 		NFTs: pallet_nft::{Pallet, Call, Storage, Event<T>},
@@ -29,7 +30,7 @@ parameter_types! {
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
-impl frame_system::Config for Test {
+impl frame_system::Config for TestRuntime {
 	type BaseCallFilter = frame_support::traits::Everything;
 	type BlockWeights = ();
 	type BlockLength = ();
@@ -59,14 +60,50 @@ parameter_types! {
     pub const MaxLength: u32 = 20;
 }
 
-impl pallet_nft::Config for Test {
+impl pallet_nft::Config for TestRuntime {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxLength = MaxLength;
 }
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+	let t = frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap();
+	let mut ext = sp_io::TestExternalities::new(t);
+	// In order to emit events the block number must be more than 0
+	ext.execute_with(|| System::set_block_number(1));
+	ext
+}
+
+pub fn new_test_ext_with_genesis_config(
+	genesis_config: pallet_nft::GenesisConfig<TestRuntime>,
+) -> sp_io::TestExternalities {pub fn new_test_ext() -> sp_io::TestExternalities {
+	let t = frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap();
+	let mut ext = sp_io::TestExternalities::new(t);
+	// In order to emit events the block number must be more than 0
+	ext.execute_with(|| System::set_block_number(1));
+	ext
+}
+
+pub fn new_test_ext_with_genesis_config(
+	genesis_config: pallet_nft::GenesisConfig<TestRuntime>,
+) -> sp_io::TestExternalities {
+	let mut t = frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap();
+
+	genesis_config.assimilate_storage(&mut t).unwrap();
+
+	let mut ext = sp_io::TestExternalities::new(t);
+	// In order to emit events the block number must be more than 0
+	ext.execute_with(|| System::set_block_number(1));
+	ext
+}
+	let mut t = frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap();
+
+	genesis_config.assimilate_storage(&mut t).unwrap();
+
+	let mut ext = sp_io::TestExternalities::new(t);
+	// In order to emit events the block number must be more than 0
+	ext.execute_with(|| System::set_block_number(1));
+	ext
 }
 
 // Mock users AccountId
