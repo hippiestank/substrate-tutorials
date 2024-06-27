@@ -55,7 +55,8 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(0)]
+        #[pallet::call_index(0)]
+		#[pallet::weight(Weight::default())]
 		pub fn set_btc_price(origin: OriginFor<T>, btc_price: FixedI64) -> DispatchResult {
 			// TODO:
 			// - ensure origin is none
