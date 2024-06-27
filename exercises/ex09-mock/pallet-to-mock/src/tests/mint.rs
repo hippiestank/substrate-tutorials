@@ -3,10 +3,10 @@ use frame_support::{assert_err, assert_noop, assert_ok, error::BadOrigin};
 
 #[test]
 fn ok() {
-	new_test_ext().execute_with(|| {
+	ExtBuilder::default().balances(vec![(ALICE, 1000)]).build().execute_with(|| {
 		let balance_before = Balances::free_balance(ALICE);
 
-		assert_ok!(PalletToMock::mint(Origin::signed(ALICE)));
+		assert_ok!(PalletToMock::mint(RuntimeOrigin::signed(ALICE)));
 
 		let balance_after = Balances::free_balance(ALICE);
 
@@ -21,7 +21,7 @@ fn ok() {
 #[test]
 fn must_be_signed() {
 	new_test_ext().execute_with(|| {
-		assert_noop!(PalletToMock::mint(Origin::none()), BadOrigin);
+		assert_noop!(PalletToMock::mint(RuntimeOrigin::none()), BadOrigin);
 	})
 }
 
@@ -29,7 +29,7 @@ fn must_be_signed() {
 fn callet_should_exist() {
 	new_test_ext().execute_with(|| {
 		assert_err!(
-			PalletToMock::mint(Origin::signed(2)),
+			PalletToMock::mint(RuntimeOrigin::signed(2)),
 			Error::<TestRuntime>::CallerShouldExist
 		);
 	})
