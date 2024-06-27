@@ -11,7 +11,7 @@ pub mod types;
 
 use frame_support::{
     {ensure, BoundedVec},
-    traits::GenesisBuild,
+    traits::BuildGenesisConfig,
 };
 
 use types::*;
@@ -51,7 +51,7 @@ pub mod pallet {
 	}
 
 	#[pallet::genesis_build]
-	impl<T: Config> GenesisBuild<T> for GenesisConfig<T> {
+	impl<T: Config>BuildGenesisConfig for GenesisConfig<T> {
 		fn build(&self) {
 			// TODO
 			// iterate over the `GenesisAssetList` and:
@@ -121,7 +121,8 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(0)]
+        #[pallet::call_index(0)]
+		#[pallet::weight(Weight::default())]
 		pub fn mint(
 			origin: OriginFor<T>,
 			metadata: BoundedVec<u8, T::MaxLength>,
@@ -134,7 +135,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(1)]
+		#[pallet::weight(Weight::default())]
 		pub fn burn(origin: OriginFor<T>, asset_id: UniqueAssetId, amount: u128) -> DispatchResult {
 			let origin = ensure_signed(origin)?;
 
@@ -171,7 +173,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(2)]
+		#[pallet::weight(Weight::default())]
 		pub fn transfer(
 			origin: OriginFor<T>,
 			asset_id: UniqueAssetId,
