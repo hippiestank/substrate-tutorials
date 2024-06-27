@@ -1,26 +1,26 @@
 use crate as pallet_price_oracle;
 use frame_support::{
 	derive_impl,
-    // parameter_types,
+    parameter_types,
 	traits::{ConstU16, ConstU64},
 };
 use sp_core::H256;
 use sp_runtime::{
-    //testing::{Header, TestXt},
+    testing::{Header, TestXt},
 	traits::{BlakeTwo256, IdentityLookup},
 	BuildStorage,
 };
 
-// type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
-type Block = frame_system::mocking::MockBlock<Test>;
-// pub type Extrinsic = TestXt<Call, ()>;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
+type Block = frame_system::mocking::MockBlock<TestRuntime>;
+pub type Extrinsic = TestXt<RuntimeCall, ()>;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
-	pub enum Test
+	pub enum TestRuntime
 	{
 		System: frame_system,
-		PriceOracle: pallet_price_oracle::{Pallet, Call, Storage, Event<T>},
+		PriceOracle: pallet_price_oracle,
 	}
 );
 
@@ -30,7 +30,7 @@ parameter_types! {
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
-impl frame_system::Config for Test {
+impl frame_system::Config for TestRuntime {
 	type BaseCallFilter = frame_support::traits::Everything;
 	type BlockWeights = ();
 	type BlockLength = ();
@@ -56,20 +56,20 @@ impl frame_system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_price_oracle::Config for Test {
+impl pallet_price_oracle::Config for TestRuntime {
 	type RuntimeEvent = RuntimeEvent;
-	type Call = Call;
+	type Call = RuntimeCall;
 }
 
-impl<C> frame_system::offchain::SendTransactironTypes<C> for Test 
+impl<C> frame_system::offchain::SendTransactionTypes<C> for TestRuntime 
 where
-    Call: From<C>,
+    RuntimeCall: From<C>,
 {
     type Extrinsic = Extrinsic;
-    type OrverarchingCall = Call;
+    type OverarchingCall = RuntimeCall;
 }
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+	frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap().into()
 }
