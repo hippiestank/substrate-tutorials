@@ -90,7 +90,8 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(0)]
+        #[pallet::call_index(0)]
+		#[pallet::weight(Weight::default())]
 		pub fn mint(
 			origin: OriginFor<T>,
 			metadata: BoundedVec<u8, T::MaxLength>,
@@ -114,7 +115,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(1)]
+		#[pallet::weight(Weight::default())]
 		pub fn burn(origin: OriginFor<T>, asset_id: T::NFTId, amount: u128) -> DispatchResult {
 			let origin = ensure_signed(origin)?;
 
@@ -148,7 +150,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(2)]
+		#[pallet::weight(Weight::default())]
 		pub fn transfer(
 			origin: OriginFor<T>,
 			asset_id: T::NFTId,
