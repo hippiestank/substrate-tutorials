@@ -1,6 +1,7 @@
 use crate as pallet_nft;
 use frame_support::{
 	derive_impl,
+    parameter_types,
 	traits::{ConstU16, ConstU64},
 };
 use sp_core::H256;
@@ -9,19 +10,25 @@ use sp_runtime::{
 	BuildStorage,
 };
 
-type Block = frame_system::mocking::MockBlock<Test>;
+type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<TestRuntime>;
+type Block = frame_system::mocking::MockBlock<TestRuntime>;
 
 // Configure a mock runtime to test the pallet.
 frame_support::construct_runtime!(
-	pub enum Test
+	pub enum TestRuntime
 	{
 		System: frame_system,
-		TemplateModule: pallet_nft,
+		NFTs: pallet_nft,
 	}
 );
 
+parameter_types! {
+	pub const BlockHashCount: u64 = 250;
+	pub const SS58Prefix: u8 = 42;
+}
+
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
-impl frame_system::Config for Test {
+impl frame_system::Config for TestRuntime {
 	type BaseCallFilter = frame_support::traits::Everything;
 	type BlockWeights = ();
 	type BlockLength = ();
@@ -47,13 +54,20 @@ impl frame_system::Config for Test {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
-impl pallet_template::Config for Test {
+parameter_types! {
+    pub const MaxLength: u32 = 20;
+}
+
+impl pallet_nft::Config for TestRuntime {
 	type RuntimeEvent = RuntimeEvent;
     type MaxLength = ();
-    type NFTid = u128;
+    type NFTId = u128;
 }
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+	frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap().into()
 }
+// Mock users AccountId
+pub const ALICE: u64 = 1;
+pub const BOB: u64 = 2;
