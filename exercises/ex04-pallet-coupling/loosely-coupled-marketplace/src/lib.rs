@@ -74,7 +74,8 @@ pub mod pallet {
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(0)]
+        #[pallet::call_index(0)]
+		#[pallet::weight(Weight::default())]
 		pub fn set_sale(
 			origin: OriginFor<T>,
 			nft_id: T::ResourceId,
@@ -96,7 +97,8 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+        #[pallet::call_index(1)]
+		#[pallet::weight(Weight::default())]
 		pub fn buy(
 			origin: OriginFor<T>,
 			nft_id: T::ResourceId,
