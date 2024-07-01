@@ -1,15 +1,16 @@
 use crate as pallet_weights;
 use crate::mock::*;
-use frame_support::weights::{ RuntimeDbWeight, Weight };
-use frame_support::dispatch::GetDispatchInfo;
-use sp_core::Get;
+use frame_support::{
+    dispatch::GetDispatchInfo,
+    weights::RuntimeDbWeight,
+};
 
 #[test]
 fn verify_address_test() {
 	new_test_ext().execute_with(|| {
-		let db_weights: RuntimeDbWeight = <TestRuntime as frame_system::Config>::DbWeight::get();
+		let db_weights: RuntimeDbWeight = <TestiRuntime as frame_system::Config>::DbWeight::get();
 		let weight = pallet_weights::Call::<TestRuntime>::verify_address {}.get_dispatch_info().weight;
-		assert_eq!(weight, Weight::from_parts(10_000, u64::MAX) + DbWeight::get().reads(1));
+		assert_eq!(weight, 10_000 + db_weights.reads(1));
 	});
 }
 
@@ -27,8 +28,8 @@ fn duplicate_test() {
 		.get_dispatch_info()
 		.weight;
 
-		assert!(weight1.proof_size() < weight2.proof_size());
-		assert!(weight1.proof_size() > db_weights.writes(1).proof_size());
+		assert!(weight1 < weight2);
+		assert!(weight1 > db_weights.writes(1));
 	});
 }
 
@@ -48,8 +49,8 @@ fn store_maybe_hashed_test() {
 		.get_dispatch_info()
 		.weight;
 
-		assert_eq!(weight1, Weight::from_parts(100_000, u64::MAX));
-		assert_eq!(weight2, Weight::from_parts(10_000, u64::MAX));
+		assert_eq!(weight1, 100_000);
+		assert_eq!(weight2, 10_000);
 	});
 }
 
@@ -70,6 +71,6 @@ fn benchmarked_store_maybe_hashed_test() {
 		.get_dispatch_info()
 		.weight;
 
-		assert!(weight1.proof_size() > weight2.proof_size());
+		assert!(weight1 > weight2);
 	});
 }
