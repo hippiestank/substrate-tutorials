@@ -1,6 +1,7 @@
 use crate as pallet_assets;
 use frame_support::{
 	derive_impl,
+    parameter_types,
 	traits::{ConstU16, ConstU64},
 };
 use sp_core::H256;
@@ -19,6 +20,11 @@ frame_support::construct_runtime!(
 		Assets: pallet_assets,
 	}
 );
+
+parameter_types! {
+    pub const BlockHashCount: u64 = 250;
+    pub const SS58Prefix: u8 = 42;
+}
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
 impl frame_system::Config for TestRuntime {
@@ -47,6 +53,10 @@ impl frame_system::Config for TestRuntime {
 	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
+parameter_types! {
+    pub const MaxLength: u32 = 20;
+}
+
 impl pallet_assets::Config for TestRuntime {
 	type RuntimeEvent = RuntimeEvent;
 	type MaxLength = ();
@@ -54,7 +64,11 @@ impl pallet_assets::Config for TestRuntime {
 
 // Build genesis storage according to the mock runtime.
 pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap().into()
+    let t = frame_system::GenesisConfig::<TestRuntime>::default().build_storage().unwrap();
+    let mut ext = sp_io::TestExternalities::new(t);
+    // In order to emit events the block number must be more than 0
+    ext.execute_with(|| System::set_block_number(1));
+    ext
 }
 
 // Mock users AccountId
